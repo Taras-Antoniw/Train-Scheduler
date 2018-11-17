@@ -22,48 +22,37 @@ setInterval (function (){
 $("#train-schedule").html("");  
 database.ref("/trainschedule").on("child_added",function(snapshot) {
   if (snapshot.child("trainName").exists){
-    //console.log("It exists");
-    //var m2 = new Date().getMinutes();
     var m2 = parseInt(moment().get("minute"));
     var h2 = parseInt(moment().get("hour"));
     var currentTimeMinutes = m2+h2*60;
-    //console.log("Hours "+h2+"Minutes "+m2);
-    //console.log("Current time in minutes "+currentTimeMinutes);
-    //console.log(m2);
-  var $div=$("<tr>");
-    //$div.attr("id","Item-"+numTrains);
-  $div.append("<td>"+snapshot.val().trainName +"</td>");
-  //console.log("train name");
-  $div.append("<td>"+snapshot.val().destination + "</td>");
-  //console.log("destination");
-  var hFrequency = parseInt(snapshot.val().frequency);
-  $div.append("<td>"+hFrequency + "</td>");
-  //console.log("frequency " + hFrequency);
-  var hNextTrain = 0;
-  var firstTrain = snapshot.val().firstTrain;
-  var hHours = parseInt(moment(firstTrain, "HH").format("HH"));
-  var hMinutes = parseInt(moment(firstTrain, "mm").format("mm"));
-  //console.log("Intial Train "+firstTrain);
-  //console.log("Init Hours "+hHours+"Init Minutes "+ hMinutes);
-  var initialTimeMinutes = hHours * 60 + hMinutes;
-  //console.log("Initial time in minutes "+initialTimeMinutes)
-  for (i = initialTimeMinutes; i<currentTimeMinutes; i=i+hFrequency) {
-    hNextTrain = hNextTrain + hFrequency;
-  } 
-  hNextTrain = initialTimeMinutes + hNextTrain;
-  hNextTrainTime = moment().startOf("day").add(hNextTrain, "minutes").format("HH.mm");
-   
-  //console.log("next train "+hNextTrainTime);
-  $div.append("<td>"+hNextTrainTime+"</td>");
-  var minAway = hNextTrain - currentTimeMinutes;
-  $div.append("<td>"+minAway+"</td>");
-  $("#train-schedule").append($div);
+    var hFrequency = parseInt(snapshot.val().frequency);
+    var hNextTrain = 0;
+    var firstTrain = snapshot.val().firstTrain;
+    var hHours = parseInt(moment(firstTrain, "HH").format("HH"));
+    var hMinutes = parseInt(moment(firstTrain, "mm").format("mm"));
+    var initialTimeMinutes = hHours * 60 + hMinutes;
+    for (i = initialTimeMinutes; i<currentTimeMinutes; i=i+hFrequency) {
+      hNextTrain = hNextTrain + hFrequency;
+    } 
+    hNextTrain = initialTimeMinutes + hNextTrain;
+    hNextTrainTime = moment().startOf("day").add(hNextTrain, "minutes").format("HH.mm");
+    var minAway = hNextTrain - currentTimeMinutes;
+
+    //build display
+    var $div=$("<tr>");
+    $div.append("<td>"+snapshot.val().trainName +"</td>");
+    $div.append("<td>"+snapshot.val().destination + "</td>");
+    $div.append("<td>"+hFrequency + "</td>");
+
+    $div.append("<td>"+hNextTrainTime+"</td>");
+    $div.append("<td>"+minAway+"</td>");
+    $("#train-schedule").append($div);
   }
   });
 }, 1000);
   //end pull from database
 
-
+ 
 //submit route
 $("#submit-route").on("click", function(event) {
     event.preventDefault();
