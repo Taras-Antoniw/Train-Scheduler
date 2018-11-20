@@ -37,20 +37,50 @@ database.ref("/trainschedule").on("child_added",function(snapshot) {
     hNextTrain = initialTimeMinutes + hNextTrain;
     hNextTrainTime = moment().startOf("day").add(hNextTrain, "minutes").format("HH.mm");
     var minAway = hNextTrain - currentTimeMinutes;
+    var fHours = Math.floor(hFrequency/60);
+    var fMinutes = hFrequency - fHours*60;
+    var minHours = Math.floor(minAway/60);
+    var minMinutes = minAway - minHours*60;
 
     //build display
+
+    //if (minAway<10) {
+    //  var $div$=$("<tr class = row row-alert>");
+    //}
+    //else {var $div=$("<tr>")}
     var $div=$("<tr>");
     $div.append("<td>"+snapshot.val().trainName +"</td>");
     $div.append("<td>"+snapshot.val().destination + "</td>");
-    $div.append("<td>"+hFrequency + "</td>");
-
+    //$div.append("<td>"+hFrequency + "</td>");
+    if (fHours !==0) {
+      $div.append("<td>"+fHours+" hr<br>"+fMinutes+" min</td>");
+    }
+    else{$div.append("<td>"+fMinutes+" min</td>");
+    }
     $div.append("<td>"+hNextTrainTime+"</td>");
-    $div.append("<td>"+minAway+"</td>");
+    //$div.append("<td>"+minAway+"</td>");
+    if (minHours !==0) {
+      $div.append("<td>"+minHours+" hr<br>"+minMinutes+" min</td>");
+    }
+
+    else if (minMinutes === 0) {
+      $div.append("<td>Train has left the Station</td>");
+    }
+    else if (minMinutes <= 5) {
+      $div.append("<td>"+minMinutes+" min <br>Please board Train</td>");
+    }
+    else if(minMinutes <=10 ) {
+      $div.append("<td>"+minMinutes+" min <br>Please proceed to Platform</td>");
+    }
+    else{$div.append("<td>"+minMinutes+" min</td>");
+
+    }
+
     $("#train-schedule").append($div);
   }
   });
 }, 1000);
-  //end pull from database
+  //end pull from database 
 
  
 //submit route
